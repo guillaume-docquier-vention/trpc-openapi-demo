@@ -1,34 +1,82 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect, type ReactElement } from 'react'
 import './App.css'
+import { ExecutionEngineService } from './ExecutionEngineService.ts'
+import type { ActuatorStatus } from '../../ts-server/src/state.ts'
 
-function App() {
-  const [count, setCount] = useState(0)
+interface AppProps {
+  executionEngineService: ExecutionEngineService
+}
+
+function App({ executionEngineService }: AppProps): ReactElement {
+  const [actuators, setActuators] = useState<ActuatorStatus[]>([])
+
+  useEffect(() => {
+    executionEngineService.apiClient.actuators.getActuators.query()
+      .then(({ actuators }) => setActuators(actuators))
+  }, [setActuators]);
+
+  const moveActuator = (actuatorId: string): void => {
+    executionEngineService.apiClient.actuators.move.mutate({ id: actuatorId })
+      .then(response => {
+        const newActuators = actuators.map(actuator => {
+          if (actuator.actuatorId !== actuatorId) {
+            return actuator
+          }
+
+          return response.actuator
+        })
+
+        setActuators(newActuators)
+      })
+      .catch(console.error)
+  }
+
+  const stopActuator = (actuatorId: string): void => {
+    executionEngineService.apiClient.actuators.stop.mutate({ id: actuatorId })
+      .then(response => {
+        const newActuators = actuators.map(actuator => {
+          if (actuator.actuatorId !== actuatorId) {
+            return actuator
+          }
+
+          return response.actuator
+        })
+
+        setActuators(newActuators)
+      })
+      .catch(console.error)
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <div onClick={() => executionEngineService.login()}>Login</div>
+      <div onClick={() => executionEngineService.logout()}>Logout</div>
+      {
+        actuators.map(actuator => <Actuator
+          key={actuator.actuatorId}
+          actuator={actuator}
+          onMove={() => moveActuator(actuator.actuatorId)}
+          onStop={() => stopActuator(actuator.actuatorId)}
+        />)
+      }
     </>
+  )
+}
+
+interface ActuatorProps {
+  actuator: ActuatorStatus
+  onMove: () => void
+  onStop: () => void
+}
+
+function Actuator({ actuator, onMove, onStop }: ActuatorProps): ReactElement {
+  return (
+    <div className="actuator-container">
+      <div>{actuator.actuatorId}</div>
+      <div>{actuator.status}</div>
+      <div onClick={onMove}>Move</div>
+      <div onClick={onStop}>Stop</div>
+    </div>
   )
 }
 
