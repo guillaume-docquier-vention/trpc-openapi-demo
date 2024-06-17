@@ -5,7 +5,7 @@ type ExecutionEngineClient = ReturnType<typeof createTRPCClient<ExecutionEngineR
 
 export class ExecutionEngineService {
   public readonly apiClient: ExecutionEngineClient
-  private _authToken: string | undefined
+  private _authToken: string | undefined = undefined
 
   constructor(hostBaseUrl: string) {
     this.apiClient = createExecutionEngineClient(hostBaseUrl, () => this._authToken)

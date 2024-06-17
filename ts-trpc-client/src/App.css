@@ -9,3 +9,7 @@
   display: flex;
   column-gap: 1rem;
 }
+
+.actuator-container * {
+  width: 100px;
+}
