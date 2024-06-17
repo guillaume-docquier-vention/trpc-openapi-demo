@@ -4,6 +4,8 @@ export type AuthLoginResponse = {
     token: string;
 };
 
+export type AuthLoginError = unknown;
+
 export type ActuatorsGetActuatorsResponse = {
     actuators: Array<{
         actuatorId: string;
@@ -11,8 +13,12 @@ export type ActuatorsGetActuatorsResponse = {
     }>;
 };
 
+export type ActuatorsGetActuatorsError = unknown;
+
 export type ActuatorsGetActuatorByIdData = {
-    id: string;
+    path: {
+        id: string;
+    };
 };
 
 export type ActuatorsGetActuatorByIdResponse = {
@@ -22,8 +28,12 @@ export type ActuatorsGetActuatorByIdResponse = {
     };
 };
 
+export type ActuatorsGetActuatorByIdError = unknown;
+
 export type ActuatorsMoveData = {
-    id: string;
+    path: {
+        id: string;
+    };
 };
 
 export type ActuatorsMoveResponse = {
@@ -33,8 +43,12 @@ export type ActuatorsMoveResponse = {
     };
 };
 
+export type ActuatorsMoveError = unknown;
+
 export type ActuatorsStopData = {
-    id: string;
+    path: {
+        id: string;
+    };
 };
 
 export type ActuatorsStopResponse = {
@@ -44,6 +58,8 @@ export type ActuatorsStopResponse = {
     };
 };
 
+export type ActuatorsStopError = unknown;
+
 export type $OpenApiTs = {
     '/auth/login': {
         post: {
@@ -51,7 +67,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful response
                  */
-                200: {
+                '200': {
                     token: string;
                 };
                 /**
@@ -73,7 +89,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful response
                  */
-                200: {
+                '200': {
                     actuators: Array<{
                         actuatorId: string;
                         status: 'idle' | 'moving';
@@ -99,7 +115,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful response
                  */
-                200: {
+                '200': {
                     actuator: {
                         actuatorId: string;
                         status: 'idle' | 'moving';
@@ -125,7 +141,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful response
                  */
-                200: {
+                '200': {
                     actuator: {
                         actuatorId: string;
                         status: 'idle' | 'moving';
@@ -151,7 +167,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful response
                  */
-                200: {
+                '200': {
                     actuator: {
                         actuatorId: string;
                         status: 'idle' | 'moving';

@@ -12,7 +12,7 @@ function App({ executionEngineService }: AppProps): ReactElement {
 
   useEffect(() => {
     executionEngineService.apiClient.actuators.getActuators.query()
-      .then(({ actuators }) => setActuators(actuators))
+      .then(response => setActuators(response.actuators))
   }, [setActuators]);
 
   const moveActuator = (actuatorId: string): void => {
@@ -49,6 +49,7 @@ function App({ executionEngineService }: AppProps): ReactElement {
 
   return (
     <>
+      <div>TRPC Client</div>
       <div onClick={() => executionEngineService.login()}>Login</div>
       <div onClick={() => executionEngineService.logout()}>Logout</div>
       {

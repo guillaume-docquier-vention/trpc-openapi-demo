@@ -1,14 +1,22 @@
-import { createTRPCClient, httpBatchLink } from '@trpc/client'
-import type { AppRouter as ExecutionEngineRPC } from '../../ts-server/src/router.ts'
+import { createClient } from '@hey-api/client-fetch'
+import * as apiClient from '../rest-api-client/services.gen.ts'
 
-type ExecutionEngineClient = ReturnType<typeof createTRPCClient<ExecutionEngineRPC>>
+type ExecutionEngineClient = typeof apiClient
 
 export class ExecutionEngineService {
-  public readonly apiClient: ExecutionEngineClient
+  public readonly apiClient: ExecutionEngineClient = apiClient
   private _authToken: string | undefined = undefined
 
   constructor(hostBaseUrl: string) {
-    this.apiClient = createExecutionEngineClient(hostBaseUrl, () => this._authToken)
+    // This sets up the global client used by services.gen.ts
+    createClient({
+      baseUrl: `${hostBaseUrl}/api`
+    })
+      .interceptors.request.use((request) => {
+        request.headers.set('Authorization', `Bearer ${this._authToken}`);
+
+        return request;
+      });
   }
 
   get isAuthenticated() {
@@ -16,27 +24,10 @@ export class ExecutionEngineService {
   }
 
   async login(): Promise<void> {
-    this._authToken = (await this.apiClient.auth.login.mutate()).token
+    this._authToken = (await this.apiClient.authLogin()).data?.token
   }
 
   async logout(): Promise<void> {
     this._authToken = undefined
   }
-}
-
-function createExecutionEngineClient(hostBaseUrl: string, getAuthToken: () => string | undefined): ExecutionEngineClient {
-  return createTRPCClient<ExecutionEngineRPC>({
-    links: [
-      httpBatchLink({
-        url: `${hostBaseUrl}/api/trpc`,
-        headers() {
-          const authToken = getAuthToken()
-
-          return {
-            authorization: authToken ? `Bearer ${authToken}` : undefined,
-          }
-        },
-      }),
-    ],
-  })
 }

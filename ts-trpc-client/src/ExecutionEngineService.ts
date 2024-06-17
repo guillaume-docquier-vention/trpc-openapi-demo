@@ -29,13 +29,9 @@ function createExecutionEngineClient(hostBaseUrl: string, getAuthToken: () => st
     links: [
       httpBatchLink({
         url: `${hostBaseUrl}/api/trpc`,
-        headers() {
-          const authToken = getAuthToken()
-
-          return {
-            authorization: authToken ? `Bearer ${authToken}` : undefined,
-          }
-        },
+        headers: () => ({
+          authorization: `Bearer ${getAuthToken()}`,
+        })
       }),
     ],
   })

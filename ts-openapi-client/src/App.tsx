@@ -11,35 +11,51 @@ function App({ executionEngineService }: AppProps): ReactElement {
   const [actuators, setActuators] = useState<ActuatorStatus[]>([])
 
   useEffect(() => {
-    executionEngineService.apiClient.actuators.getActuators.query()
-      .then(({ actuators }) => setActuators(actuators))
+    executionEngineService.apiClient.actuatorsGetActuators()
+      .then(({ data, error }) => {
+        if (!data) {
+          console.error(error)
+          return
+        }
+
+        setActuators(data.actuators)
+      })
   }, [setActuators]);
 
   const moveActuator = (actuatorId: string): void => {
-    executionEngineService.apiClient.actuators.move.mutate({ id: actuatorId })
-      .then(response => {
+    executionEngineService.apiClient.actuatorsMove({ path: { id: actuatorId }})
+      .then(({ data, error }) => {
+        if (!data) {
+          console.error(error)
+          return
+        }
+
         const newActuators = actuators.map(actuator => {
           if (actuator.actuatorId !== actuatorId) {
             return actuator
           }
 
-          return response.actuator
+          return data.actuator
         })
 
         setActuators(newActuators)
       })
-      .catch(console.error)
   }
 
   const stopActuator = (actuatorId: string): void => {
-    executionEngineService.apiClient.actuators.stop.mutate({ id: actuatorId })
-      .then(response => {
+    executionEngineService.apiClient.actuatorsStop({ path: { id: actuatorId }})
+      .then(({ data, error }) => {
+        if (!data) {
+          console.error(error)
+          return
+        }
+
         const newActuators = actuators.map(actuator => {
           if (actuator.actuatorId !== actuatorId) {
             return actuator
           }
 
-          return response.actuator
+          return data.actuator
         })
 
         setActuators(newActuators)
@@ -49,6 +65,7 @@ function App({ executionEngineService }: AppProps): ReactElement {
 
   return (
     <>
+      <div>OpenAPI Client</div>
       <div onClick={() => executionEngineService.login()}>Login</div>
       <div onClick={() => executionEngineService.logout()}>Logout</div>
       {
